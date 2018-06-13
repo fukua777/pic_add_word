@@ -4,10 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Pic add word</title>
     <script src="https://cdn.bootcss.com/gif.js/0.2.0/gif.js"></script>
+    <style>
+        .result{
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
+    <p>只是简单的通过canvas对图片加上文字，形成gif是借助gif.js，感觉可能是将图片转化成二进制流，后结合成动图，待研究。</p>
+    <div class="result">
+        <button onclick="trans()">生成</button>
+    </div>
 </body>
 </html>
 <script>
@@ -63,10 +72,12 @@
         console.log(e);
         let imgResult = document.createElement('img');
         imgResult.setAttribute('src', URL.createObjectURL(e));
-        document.body.appendChild(imgResult);
+        document.getElementsByClassName('result')[0].appendChild(imgResult);
     });
     console.log(gifObj);
-    setTimeout(() => {
-        gifObj.render()
-    },500);
+
+    trans = () => {
+        return !gifObj.running && gifObj.render()
+    }
+    
 </script>
