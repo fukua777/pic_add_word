@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.bootcss.com/gif.js/0.2.0/gif.js"></script>
+</head>
+<body>
+</body>
+</html>
+<script>
+    const imgObj = [], spanObj = [];
+    for ( let i = 2; i < 11; i++) {
+        imgObj[i] = document.createElement('img');
+        spanObj[i] = document.createElement('h3');
+        imgObj[i].setAttribute('src', `./${i}.jpg`);
+        spanObj[i].setAttribute('fontSize', '18px');
+        spanObj[i].innerHTML = `这是文字${i}`;
+        document.body.appendChild(imgObj[i]);
+        document.body.appendChild(spanObj[i]);
+    }
+
+    const gifObj = new GIF({
+        width: 473 || imgObj[2].naturalWidth,
+        height: 200 || imgObj[2].naturalHeight,
+        debug: true,    
+        workerScript: './gif.worker.js'     // 放在同域下
+    });
+
+
+    const canvasObj = document.createElement('canvas');
+    const canvasContext = canvasObj.getContext('2d');
+
+    const mainFunc = (imgIndex) => {
+        if (!imgObj[imgIndex]) {
+            return;
+        }
+        canvasContext.clearRect(0, 0, canvasObj.width, canvasObj.height);
+        canvasObj.width = 473 || imgObj[imgIndex].naturalWidth;
+        canvasObj.height = 200 || imgObj[imgIndex].naturalHeight;
+        canvasContext.drawImage(imgObj[imgIndex], 0, 0);
+        if (spanObj[imgIndex]) {
+            canvasContext.font = "24px bold STHeiti, STXihei";
+            canvasContext.fillStyle = "#ffffff";
+            canvasContext.textAlign = "center";
+            canvasContext.textBaseline = "middle";
+            canvasContext.lineWidth = 1;
+            canvasContext.strokeStyle = "#000000";
+            canvasContext.strokeText(spanObj[imgIndex].innerHTML, imgObj[imgIndex].naturalWidth / 2, imgObj[imgIndex].naturalHeight - 32);
+            canvasContext.fillText(spanObj[imgIndex].innerHTML, imgObj[imgIndex].naturalWidth / 2, imgObj[imgIndex].naturalHeight - 32)
+        }
+        gifObj.addFrame(canvasContext, {
+            delay: 900,
+            copy: true
+        })
+        mainFunc(++imgIndex);
+    }
+    mainFunc(2);
+
+    gifObj.on("finished", (e) => {
+        console.log(e);
+        let imgResult = document.createElement('img');
+        imgResult.setAttribute('src', URL.createObjectURL(e));
+        document.body.appendChild(imgResult);
+    });
+    console.log(gifObj);
+    setTimeout(() => {
+        gifObj.render()
+    },500);
+</script>
