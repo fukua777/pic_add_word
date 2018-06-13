@@ -31,53 +31,55 @@
         document.body.appendChild(spanObj[i]);
     }
 
-    const gifObj = new GIF({
-        width: 473 || imgObj[2].naturalWidth,
-        height: 200 || imgObj[2].naturalHeight,
-        debug: true,    
-        workerScript: './gif.worker.js'     // 放在同域下
-    });
+    const transFunc = () => {
+        const gifObj = new GIF({
+            width: 473 || imgObj[2].naturalWidth,
+            height: 200 || imgObj[2].naturalHeight,
+            debug: true,    
+            // repeat: 1,
+            workerScript: './gif.worker.js'     // 放在同域下
+        });
+        
+        const canvasObj = document.createElement('canvas');
+        const canvasContext = canvasObj.getContext('2d');
 
-
-    const canvasObj = document.createElement('canvas');
-    const canvasContext = canvasObj.getContext('2d');
-
-    const mainFunc = (imgIndex) => {
-        if (!imgObj[imgIndex]) {
-            return;
+        const mainFunc = (imgIndex) => {
+            if (!imgObj[imgIndex]) {
+                return;
+            }
+            canvasContext.clearRect(0, 0, canvasObj.width, canvasObj.height);
+            canvasObj.width = 473 || imgObj[imgIndex].naturalWidth;
+            canvasObj.height = 200 || imgObj[imgIndex].naturalHeight;
+            canvasContext.drawImage(imgObj[imgIndex], 0, 0);
+            if (spanObj[imgIndex]) {
+                canvasContext.font = "24px bold STHeiti, STXihei";
+                canvasContext.fillStyle = "#ffffff";
+                canvasContext.textAlign = "center";
+                canvasContext.textBaseline = "middle";
+                canvasContext.lineWidth = 1;
+                canvasContext.strokeStyle = "#000000";
+                canvasContext.strokeText(spanObj[imgIndex].innerHTML, imgObj[imgIndex].naturalWidth / 2, imgObj[imgIndex].naturalHeight - 32);
+                canvasContext.fillText(spanObj[imgIndex].innerHTML, imgObj[imgIndex].naturalWidth / 2, imgObj[imgIndex].naturalHeight - 32)
+            }
+            gifObj.addFrame(canvasContext, {
+                delay: 900,
+                copy: true
+            })
+            mainFunc(++imgIndex);
         }
-        canvasContext.clearRect(0, 0, canvasObj.width, canvasObj.height);
-        canvasObj.width = 473 || imgObj[imgIndex].naturalWidth;
-        canvasObj.height = 200 || imgObj[imgIndex].naturalHeight;
-        canvasContext.drawImage(imgObj[imgIndex], 0, 0);
-        if (spanObj[imgIndex]) {
-            canvasContext.font = "24px bold STHeiti, STXihei";
-            canvasContext.fillStyle = "#ffffff";
-            canvasContext.textAlign = "center";
-            canvasContext.textBaseline = "middle";
-            canvasContext.lineWidth = 1;
-            canvasContext.strokeStyle = "#000000";
-            canvasContext.strokeText(spanObj[imgIndex].innerHTML, imgObj[imgIndex].naturalWidth / 2, imgObj[imgIndex].naturalHeight - 32);
-            canvasContext.fillText(spanObj[imgIndex].innerHTML, imgObj[imgIndex].naturalWidth / 2, imgObj[imgIndex].naturalHeight - 32)
-        }
-        gifObj.addFrame(canvasContext, {
-            delay: 900,
-            copy: true
-        })
-        mainFunc(++imgIndex);
+        mainFunc(2);
+
+        gifObj.on("finished", (e) => {
+            console.log(e);
+            let imgResult = document.createElement('img');
+            imgResult.setAttribute('src', URL.createObjectURL(e));
+            document.getElementsByClassName('result')[0].appendChild(imgResult);
+        });
+        gifObj.render();
     }
-    mainFunc(2);
-
-    gifObj.on("finished", (e) => {
-        console.log(e);
-        let imgResult = document.createElement('img');
-        imgResult.setAttribute('src', URL.createObjectURL(e));
-        document.getElementsByClassName('result')[0].appendChild(imgResult);
-    });
-    console.log(gifObj);
-
+    
     trans = () => {
-        return !gifObj.running && gifObj.render()
+        transFunc();
     }
     
 </script>
